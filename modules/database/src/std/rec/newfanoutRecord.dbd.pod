@@ -1,0 +1,4245 @@
+#*************************************************************************
+# Copyright (c) 2002 The University of Chicago, as Operator of Argonne
+#     National Laboratory.
+# Copyright (c) 2002 The Regents of the University of California, as
+#     Operator of Los Alamos National Laboratory.
+# EPICS BASE is distributed subject to a Software License Agreement found
+# in file LICENSE that is included with this distribution.
+#*************************************************************************
+
+=title Data Fanout Record (newfanout)
+
+The Data Fanout or "newfanout" record is used to forward data to up to
+eight other records. Its similar to the fanout record except that the
+capability to forward data has been added to it. If has no associated
+device support.
+
+=head2 Parameter Fields
+
+The record-specific fields are described below, grouped by functionality.
+
+=recordtype newfanout
+
+=cut
+
+menu(newfanoutSELM) {
+	choice(newfanoutSELM_All,"All")
+	choice(newfanoutSELM_Specified,"Specified")
+	choice(newfanoutSELM_Mask,"Mask")
+}
+
+recordtype(newfanout) {
+
+=head3 Scan Parameters
+
+The data fanout record has the standard fields for specifying under what
+circumstances it will be processed.
+These fields are listed in L<Scan Fields|dbCommonRecord/Scan Fields>.
+
+=head3 Desired Output Parameters
+
+The data fanout record must specify where the desired output value
+originates, i.e., the data which is to be fowarded to the records in its
+output links. The output mode select (OMSL) field determines whether the
+output originates from another record or from run-time database access.
+When set to C<closed_loop>, the desired output is retrieved from the link
+specified in the Desired Output Link (DOL) field, which can specify either a
+database or a channel access link, and placed into the VAL field. When set
+to C<supervisory>, the desired output can be written to the VAL field via
+dbPuts at run-time.
+
+The DOL field can also be a constant in which case the VAL field is
+initialized to the constant value.
+
+Note that there are no conversion parameters, so the desired output value
+undergoes no conversions before it is sent out to the output links.
+
+=fields DOL, OMSL, VAL
+
+=head3 Write Parameters
+
+The OUT000-OUT2FF fields specify where VAL is to be sent. Each field that is to
+forward data must specify an address to another record. See L<Address
+Specification|https://docs.epics-controls.org/en/latest/guides/EPICS_Process_Database_Concepts.html#address-specification>
+for information on specifying links.
+
+The SELL, SELM, and SELN fields specify which output links are to be
+used.
+
+=head4 Menu newfanoutSELM
+
+SELM is a menu, with three choices:
+
+=menu newfanoutSELM
+
+If SELM is C<All>, then all output links are used, and the values of
+SELL and SELN are ignored.
+
+If SELM is C<Specified>, then the value of SELN is used to specify a single
+link which will be used. If SELN==0, then no link will be used; if SELN==1,
+then OUT000 will be used, and so on.
+
+SELN can either have its value set directly, or have it retrieved from
+another EPICS PV. If SELL is a valid PV link, then SELN will be read from
+the linked PV.
+
+If SELM is C<Mask>, then SELN will be treated as a bit mask. If bit zero
+(the LSB) of SELN is set, then OUT000 will be written to; if bit one is set,
+OUTB will be written to, and so on. Thus when SELN==5, both OUTC and OUT000
+will be written to.
+
+=fields SELL, SELM, SELN,OUT000, OUT001, OUT002, OUT003, OUT004, OUT005, OUT006, OUT007, OUT008, OUT009, OUT00A, OUT00B, OUT00C, OUT00D, OUT00E, OUT00F, OUT010, OUT011, OUT012, OUT013, OUT014, OUT015, OUT016, OUT017, OUT018, OUT019, OUT01A, OUT01B, OUT01C, OUT01D, OUT01E, OUT01F, OUT020, OUT021, OUT022, OUT023, OUT024, OUT025, OUT026, OUT027, OUT028, OUT029, OUT02A, OUT02B, OUT02C, OUT02D, OUT02E, OUT02F, OUT030, OUT031, OUT032, OUT033, OUT034, OUT035, OUT036, OUT037, OUT038, OUT039, OUT03A, OUT03B, OUT03C, OUT03D, OUT03E, OUT03F, OUT040, OUT041, OUT042, OUT043, OUT044, OUT045, OUT046, OUT047, OUT048, OUT049, OUT04A, OUT04B, OUT04C, OUT04D, OUT04E, OUT04F, OUT050, OUT051, OUT052, OUT053, OUT054, OUT055, OUT056, OUT057, OUT058, OUT059, OUT05A, OUT05B, OUT05C, OUT05D, OUT05E, OUT05F, OUT060, OUT061, OUT062, OUT063, OUT064, OUT065, OUT066, OUT067, OUT068, OUT069, OUT06A, OUT06B, OUT06C, OUT06D, OUT06E, OUT06F, OUT070, OUT071, OUT072, OUT073, OUT074, OUT075, OUT076, OUT077, OUT078, OUT079, OUT07A, OUT07B, OUT07C, OUT07D, OUT07E, OUT07F, OUT080, OUT081, OUT082, OUT083, OUT084, OUT085, OUT086, OUT087, OUT088, OUT089, OUT08A, OUT08B, OUT08C, OUT08D, OUT08E, OUT08F, OUT090, OUT091, OUT092, OUT093, OUT094, OUT095, OUT096, OUT097, OUT098, OUT099, OUT09A, OUT09B, OUT09C, OUT09D, OUT09E, OUT09F, OUT0A0, OUT0A1, OUT0A2, OUT0A3, OUT0A4, OUT0A5, OUT0A6, OUT0A7, OUT0A8, OUT0A9, OUT0AA, OUT0AB, OUT0AC, OUT0AD, OUT0AE, OUT0AF, OUT0B0, OUT0B1, OUT0B2, OUT0B3, OUT0B4, OUT0B5, OUT0B6, OUT0B7, OUT0B8, OUT0B9, OUT0BA, OUT0BB, OUT0BC, OUT0BD, OUT0BE, OUT0BF, OUT0C0, OUT0C1, OUT0C2, OUT0C3, OUT0C4, OUT0C5, OUT0C6, OUT0C7, OUT0C8, OUT0C9, OUT0CA, OUT0CB, OUT0CC, OUT0CD, OUT0CE, OUT0CF, OUT0D0, OUT0D1, OUT0D2, OUT0D3, OUT0D4, OUT0D5, OUT0D6, OUT0D7, OUT0D8, OUT0D9, OUT0DA, OUT0DB, OUT0DC, OUT0DD, OUT0DE, OUT0DF, OUT0E0, OUT0E1, OUT0E2, OUT0E3, OUT0E4, OUT0E5, OUT0E6, OUT0E7, OUT0E8, OUT0E9, OUT0EA, OUT0EB, OUT0EC, OUT0ED, OUT0EE, OUT0EF, OUT0F0, OUT0F1, OUT0F2, OUT0F3, OUT0F4, OUT0F5, OUT0F6, OUT0F7, OUT0F8, OUT0F9, OUT0FA, OUT0FB, OUT0FC, OUT0FD, OUT0FE, OUT0FF, OUT100, OUT101, OUT102, OUT103, OUT104, OUT105, OUT106, OUT107, OUT108, OUT109, OUT10A, OUT10B, OUT10C, OUT10D, OUT10E, OUT10F, OUT110, OUT111, OUT112, OUT113, OUT114, OUT115, OUT116, OUT117, OUT118, OUT119, OUT11A, OUT11B, OUT11C, OUT11D, OUT11E, OUT11F, OUT120, OUT121, OUT122, OUT123, OUT124, OUT125, OUT126, OUT127, OUT128, OUT129, OUT12A, OUT12B, OUT12C, OUT12D, OUT12E, OUT12F, OUT130, OUT131, OUT132, OUT133, OUT134, OUT135, OUT136, OUT137, OUT138, OUT139, OUT13A, OUT13B, OUT13C, OUT13D, OUT13E, OUT13F, OUT140, OUT141, OUT142, OUT143, OUT144, OUT145, OUT146, OUT147, OUT148, OUT149, OUT14A, OUT14B, OUT14C, OUT14D, OUT14E, OUT14F, OUT150, OUT151, OUT152, OUT153, OUT154, OUT155, OUT156, OUT157, OUT158, OUT159, OUT15A, OUT15B, OUT15C, OUT15D, OUT15E, OUT15F, OUT160, OUT161, OUT162, OUT163, OUT164, OUT165, OUT166, OUT167, OUT168, OUT169, OUT16A, OUT16B, OUT16C, OUT16D, OUT16E, OUT16F, OUT170, OUT171, OUT172, OUT173, OUT174, OUT175, OUT176, OUT177, OUT178, OUT179, OUT17A, OUT17B, OUT17C, OUT17D, OUT17E, OUT17F, OUT180, OUT181, OUT182, OUT183, OUT184, OUT185, OUT186, OUT187, OUT188, OUT189, OUT18A, OUT18B, OUT18C, OUT18D, OUT18E, OUT18F, OUT190, OUT191, OUT192, OUT193, OUT194, OUT195, OUT196, OUT197, OUT198, OUT199, OUT19A, OUT19B, OUT19C, OUT19D, OUT19E, OUT19F, OUT1A0, OUT1A1, OUT1A2, OUT1A3, OUT1A4, OUT1A5, OUT1A6, OUT1A7, OUT1A8, OUT1A9, OUT1AA, OUT1AB, OUT1AC, OUT1AD, OUT1AE, OUT1AF, OUT1B0, OUT1B1, OUT1B2, OUT1B3, OUT1B4, OUT1B5, OUT1B6, OUT1B7, OUT1B8, OUT1B9, OUT1BA, OUT1BB, OUT1BC, OUT1BD, OUT1BE, OUT1BF, OUT1C0, OUT1C1, OUT1C2, OUT1C3, OUT1C4, OUT1C5, OUT1C6, OUT1C7, OUT1C8, OUT1C9, OUT1CA, OUT1CB, OUT1CC, OUT1CD, OUT1CE, OUT1CF, OUT1D0, OUT1D1, OUT1D2, OUT1D3, OUT1D4, OUT1D5, OUT1D6, OUT1D7, OUT1D8, OUT1D9, OUT1DA, OUT1DB, OUT1DC, OUT1DD, OUT1DE, OUT1DF, OUT1E0, OUT1E1, OUT1E2, OUT1E3, OUT1E4, OUT1E5, OUT1E6, OUT1E7, OUT1E8, OUT1E9, OUT1EA, OUT1EB, OUT1EC, OUT1ED, OUT1EE, OUT1EF, OUT1F0, OUT1F1, OUT1F2, OUT1F3, OUT1F4, OUT1F5, OUT1F6, OUT1F7, OUT1F8, OUT1F9, OUT1FA, OUT1FB, OUT1FC, OUT1FD, OUT1FE, OUT1FF, OUT200, OUT201, OUT202, OUT203, OUT204, OUT205, OUT206, OUT207, OUT208, OUT209, OUT20A, OUT20B, OUT20C, OUT20D, OUT20E, OUT20F, OUT210, OUT211, OUT212, OUT213, OUT214, OUT215, OUT216, OUT217, OUT218, OUT219, OUT21A, OUT21B, OUT21C, OUT21D, OUT21E, OUT21F, OUT220, OUT221, OUT222, OUT223, OUT224, OUT225, OUT226, OUT227, OUT228, OUT229, OUT22A, OUT22B, OUT22C, OUT22D, OUT22E, OUT22F, OUT230, OUT231, OUT232, OUT233, OUT234, OUT235, OUT236, OUT237, OUT238, OUT239, OUT23A, OUT23B, OUT23C, OUT23D, OUT23E, OUT23F, OUT240, OUT241, OUT242, OUT243, OUT244, OUT245, OUT246, OUT247, OUT248, OUT249, OUT24A, OUT24B, OUT24C, OUT24D, OUT24E, OUT24F, OUT250, OUT251, OUT252, OUT253, OUT254, OUT255, OUT256, OUT257, OUT258, OUT259, OUT25A, OUT25B, OUT25C, OUT25D, OUT25E, OUT25F, OUT260, OUT261, OUT262, OUT263, OUT264, OUT265, OUT266, OUT267, OUT268, OUT269, OUT26A, OUT26B, OUT26C, OUT26D, OUT26E, OUT26F, OUT270, OUT271, OUT272, OUT273, OUT274, OUT275, OUT276, OUT277, OUT278, OUT279, OUT27A, OUT27B, OUT27C, OUT27D, OUT27E, OUT27F, OUT280, OUT281, OUT282, OUT283, OUT284, OUT285, OUT286, OUT287, OUT288, OUT289, OUT28A, OUT28B, OUT28C, OUT28D, OUT28E, OUT28F, OUT290, OUT291, OUT292, OUT293, OUT294, OUT295, OUT296, OUT297, OUT298, OUT299, OUT29A, OUT29B, OUT29C, OUT29D, OUT29E, OUT29F, OUT2A0, OUT2A1, OUT2A2, OUT2A3, OUT2A4, OUT2A5, OUT2A6, OUT2A7, OUT2A8, OUT2A9, OUT2AA, OUT2AB, OUT2AC, OUT2AD, OUT2AE, OUT2AF, OUT2B0, OUT2B1, OUT2B2, OUT2B3, OUT2B4, OUT2B5, OUT2B6, OUT2B7, OUT2B8, OUT2B9, OUT2BA, OUT2BB, OUT2BC, OUT2BD, OUT2BE, OUT2BF, OUT2C0, OUT2C1, OUT2C2, OUT2C3, OUT2C4, OUT2C5, OUT2C6, OUT2C7, OUT2C8, OUT2C9, OUT2CA, OUT2CB, OUT2CC, OUT2CD, OUT2CE, OUT2CF, OUT2D0, OUT2D1, OUT2D2, OUT2D3, OUT2D4, OUT2D5, OUT2D6, OUT2D7, OUT2D8, OUT2D9, OUT2DA, OUT2DB, OUT2DC, OUT2DD, OUT2DE, OUT2DF, OUT2E0, OUT2E1, OUT2E2, OUT2E3, OUT2E4, OUT2E5, OUT2E6, OUT2E7, OUT2E8, OUT2E9, OUT2EA, OUT2EB, OUT2EC, OUT2ED, OUT2EE, OUT2EF, OUT2F0, OUT2F1, OUT2F2, OUT2F3, OUT2F4, OUT2F5, OUT2F6, OUT2F7, OUT2F8, OUT2F9, OUT2FA, OUT2FB, OUT2FC, OUT2FD, OUT2FE, OUT2FF
+
+=head3 Operator Display Parameters
+
+These parameters are used to present meaningful data to the operator.
+They do not affect the functioning of the record at all.
+
+=over
+
+=item *
+NAME is the records name, and can be useful when the PV name that a client
+knows is an alias for the record.
+
+=item *
+DESC is a string that is usually used to briefly describe the record.
+
+=item *
+EGU is a string of up to 16 characters naming the engineering units that the VAL
+field represents.
+
+=item *
+The HOPR and LOPR fields set the upper and lower display limits for the VAL,
+HIHI, HIGH, LOW, and LOLO fields.
+
+=item *
+The PREC field determines the floating point precision (i.e. the number of
+digits to show after the decimal point) with which to display VAL and the other
+DOUBLE fields.
+
+=back
+
+See L<Fields Common to All Record Types|dbCommonRecord/Operator Display
+Parameters> for more about the record name (NAME) and description (DESC) fields.
+
+=fields NAME, DESC, EGU, HOPR, LOPR, PREC
+
+=head3 Alarm Parameters
+
+The possible alarm conditions for data fanouts are the SCAN, READ, INVALID,
+and limit alarms. The SCAN and READ alarms are called by the record
+routines. The limit alarms are configured by the user in the HIHI, LOLO,
+HIGH, and LOW fields using floating point values. The limit alarms apply
+only to the VAL field. The severity for each of these limits is specified
+in the corresponding field (HHSV, LLSV, HSV, LSV) and can be either
+NO_ALARM, MINOR, or MAJOR. In the hysteresis field (HYST) can be entered a
+number which serves as the deadband on the limit alarms.
+
+See L<Alarm Specification|https://docs.epics-controls.org/en/latest/guides/EPICS_Process_Database_Concepts.html#alarm-specification>
+for a complete explanation of record alarms and of the standard fields.
+L<Alarm Fields|dbCommonRecord/Alarm Fields> lists other fields related
+to alarms that are common to all record types.
+
+=fields HIHI, HIGH, LOW, LOLO, HHSV, HSV, LSV, LLSV, HYST
+
+=head3 Monitor Parameters
+
+These parameters are used to determine when to send monitors placed on the
+VAL field. These monitors are sent when the value field exceeds the last
+monitored fields by the specified deadband, ADEL for archivers monitors and
+MDEL for all other types of monitors. If these fields have a value of zero,
+everytime the value changes, a monitor will be triggered; if they have a
+value of -1, everytime the record is scanned, monitors are triggered. See
+L<Monitor Specification> for a complete explanation of monitors.
+
+=fields ADEL, MDEL
+
+=head3 Run-Time Parameters and Simulation Mode Parameters
+
+These parameters are used by the run-time code for processing the data
+fanout record. Ther are not configurable. They are used to implement the
+hysteresis factors for monitor callbacks.
+
+=fields LALM, ALST, MLST
+
+=cut
+
+	include "dbCommon.dbd"
+	field(VAL,DBF_DOUBLE) {
+		prompt("Desired Output")
+		promptgroup("40 - Input")
+		asl(ASL0)
+		pp(TRUE)
+	}
+	field(SELM,DBF_MENU) {
+		prompt("Select Mechanism")
+		promptgroup("30 - Action")
+		interest(1)
+		menu(newfanoutSELM)
+	}
+	field(SELN,DBF_USHORT) {
+		prompt("Link Selection")
+		interest(1)
+		initial("1")
+	}
+	field(SELL,DBF_INLINK) {
+		prompt("Link Selection Loc")
+		promptgroup("30 - Action")
+		interest(1)
+	}
+	field(OUT000,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT001,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT002,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT003,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT004,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT005,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT006,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT007,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT008,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT009,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT00A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT00B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT00C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT00D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT00E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT00F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT010,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT011,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT012,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT013,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT014,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT015,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT016,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT017,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT018,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT019,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT01A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT01B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT01C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT01D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT01E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT01F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT020,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT021,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT022,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT023,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT024,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT025,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT026,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT027,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT028,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT029,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT02A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT02B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT02C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT02D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT02E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT02F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT030,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT031,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT032,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT033,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT034,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT035,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT036,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT037,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT038,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT039,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT03A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT03B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT03C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT03D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT03E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT03F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT040,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT041,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT042,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT043,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT044,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT045,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT046,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT047,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT048,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT049,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT04A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT04B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT04C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT04D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT04E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT04F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT050,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT051,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT052,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT053,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT054,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT055,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT056,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT057,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT058,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT059,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT05A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT05B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT05C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT05D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT05E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT05F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT060,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT061,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT062,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT063,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT064,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT065,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT066,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT067,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT068,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT069,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT06A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT06B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT06C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT06D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT06E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT06F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT070,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT071,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT072,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT073,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT074,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT075,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT076,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT077,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT078,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT079,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT07A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT07B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT07C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT07D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT07E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT07F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT080,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT081,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT082,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT083,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT084,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT085,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT086,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT087,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT088,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT089,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT08A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT08B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT08C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT08D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT08E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT08F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT090,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT091,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT092,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT093,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT094,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT095,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT096,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT097,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT098,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT099,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT09A,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT09B,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT09C,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT09D,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT09E,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT09F,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A0,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A1,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A2,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A3,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A4,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A5,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A6,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A7,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A8,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0A9,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0AA,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0AB,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0AC,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0AD,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0AE,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0AF,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B0,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B1,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B2,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B3,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B4,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B5,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B6,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B7,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B8,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0B9,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0BA,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0BB,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0BC,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0BD,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0BE,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0BF,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C0,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C1,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C2,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C3,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C4,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C5,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C6,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C7,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C8,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0C9,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0CA,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0CB,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0CC,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0CD,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0CE,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0CF,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D0,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D1,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D2,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D3,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D4,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D5,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D6,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D7,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D8,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0D9,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0DA,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0DB,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0DC,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0DD,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0DE,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0DF,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E0,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E1,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E2,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E3,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E4,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E5,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E6,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E7,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E8,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0E9,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0EA,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0EB,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0EC,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0ED,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0EE,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0EF,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F0,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F1,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F2,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F3,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F4,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F5,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F6,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F7,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F8,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0F9,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0FA,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0FB,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0FC,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0FD,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0FE,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT0FF,DBF_OUTLINK) { 
+			prompt("Output Spec A") 
+			promptgroup("50 - Output") 
+			interest(1) 
+	}
+	field(OUT100,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT101,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT102,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT103,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT104,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT105,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT106,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT107,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT108,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT109,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT10A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT10B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT10C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT10D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT10E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT10F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT110,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT111,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT112,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT113,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT114,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT115,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT116,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT117,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT118,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT119,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT11A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT11B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT11C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT11D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT11E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT11F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT120,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT121,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT122,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT123,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT124,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT125,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT126,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT127,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT128,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT129,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT12A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT12B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT12C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT12D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT12E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT12F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT130,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT131,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT132,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT133,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT134,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT135,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT136,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT137,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT138,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT139,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT13A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT13B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT13C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT13D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT13E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT13F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT140,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT141,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT142,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT143,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT144,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT145,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT146,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT147,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT148,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT149,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT14A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT14B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT14C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT14D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT14E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT14F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT150,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT151,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT152,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT153,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT154,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT155,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT156,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT157,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT158,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT159,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT15A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT15B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT15C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT15D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT15E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT15F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT160,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT161,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT162,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT163,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT164,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT165,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT166,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT167,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT168,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT169,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT16A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT16B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT16C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT16D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT16E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT16F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT170,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT171,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT172,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT173,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT174,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT175,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT176,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT177,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT178,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT179,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT17A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT17B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT17C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT17D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT17E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT17F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT180,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT181,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT182,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT183,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT184,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT185,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT186,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT187,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT188,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT189,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT18A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT18B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT18C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT18D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT18E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT18F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT190,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT191,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT192,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT193,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT194,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT195,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT196,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT197,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT198,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT199,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT19A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT19B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT19C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT19D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT19E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT19F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1A9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1AA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1AB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1AC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1AD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1AE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1AF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1B9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1BA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1BB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1BC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1BD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1BE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1BF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1C9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1CA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1CB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1CC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1CD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1CE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1CF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1D9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1DA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1DB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1DC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1DD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1DE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1DF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1E9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1EA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1EB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1EC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1ED,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1EE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1EF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1F9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1FA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1FB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1FC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1FD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1FE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT1FF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT200,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT201,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT202,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT203,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT204,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT205,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT206,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT207,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT208,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT209,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT20A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT20B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT20C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT20D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT20E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT20F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT210,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT211,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT212,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT213,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT214,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT215,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT216,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT217,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT218,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT219,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT21A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT21B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT21C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT21D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT21E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT21F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT220,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT221,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT222,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT223,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT224,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT225,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT226,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT227,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT228,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT229,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT22A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT22B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT22C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT22D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT22E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT22F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT230,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT231,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT232,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT233,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT234,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT235,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT236,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT237,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT238,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT239,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT23A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT23B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT23C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT23D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT23E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT23F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT240,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT241,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT242,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT243,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT244,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT245,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT246,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT247,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT248,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT249,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT24A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT24B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT24C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT24D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT24E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT24F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT250,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT251,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT252,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT253,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT254,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT255,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT256,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT257,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT258,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT259,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT25A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT25B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT25C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT25D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT25E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT25F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT260,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT261,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT262,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT263,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT264,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT265,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT266,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT267,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT268,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT269,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT26A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT26B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT26C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT26D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT26E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT26F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT270,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT271,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT272,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT273,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT274,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT275,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT276,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT277,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT278,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT279,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT27A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT27B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT27C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT27D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT27E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT27F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT280,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT281,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT282,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT283,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT284,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT285,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT286,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT287,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT288,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT289,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT28A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT28B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT28C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT28D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT28E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT28F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT290,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT291,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT292,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT293,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT294,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT295,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT296,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT297,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT298,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT299,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT29A,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT29B,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT29C,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT29D,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT29E,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT29F,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2A9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2AA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2AB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2AC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2AD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2AE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2AF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2B9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2BA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2BB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2BC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2BD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2BE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2BF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2C9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2CA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2CB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2CC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2CD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2CE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2CF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2D9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2DA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2DB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2DC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2DD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2DE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2DF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2E9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2EA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2EB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2EC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2ED,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2EE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2EF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F0,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F1,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F2,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F3,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F4,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F5,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F6,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F7,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F8,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2F9,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2FA,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2FB,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2FC,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2FD,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2FE,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+	field(OUT2FF,DBF_OUTLINK) {
+			prompt("Output Spec A")
+			promptgroup("50 - Output")
+			interest(1)
+	}
+
+	field(DOL,DBF_INLINK) {
+		prompt("Desired Output Link")
+		promptgroup("40 - Input")
+		interest(1)
+	}
+	field(OMSL,DBF_MENU) {
+		prompt("Output Mode Select")
+		promptgroup("50 - Output")
+		interest(1)
+		menu(menuOmsl)
+	}
+	field(EGU,DBF_STRING) {
+		prompt("Engineering Units")
+		promptgroup("80 - Display")
+		interest(1)
+		size(16)
+		prop(YES)
+	}
+	field(PREC,DBF_SHORT) {
+		prompt("Display Precision")
+		promptgroup("80 - Display")
+		interest(1)
+		prop(YES)
+	}
+	field(HOPR,DBF_DOUBLE) {
+		prompt("High Operating Range")
+		promptgroup("80 - Display")
+		interest(1)
+		prop(YES)
+	}
+	field(LOPR,DBF_DOUBLE) {
+		prompt("Low Operating Range")
+		promptgroup("80 - Display")
+		interest(1)
+		prop(YES)
+	}
+	field(HIHI,DBF_DOUBLE) {
+		prompt("Hihi Alarm Limit")
+		promptgroup("70 - Alarm")
+		pp(TRUE)
+		interest(1)
+		prop(YES)
+	}
+	field(LOLO,DBF_DOUBLE) {
+		prompt("Lolo Alarm Limit")
+		promptgroup("70 - Alarm")
+		pp(TRUE)
+		interest(1)
+		prop(YES)
+	}
+	field(HIGH,DBF_DOUBLE) {
+		prompt("High Alarm Limit")
+		promptgroup("70 - Alarm")
+		pp(TRUE)
+		interest(1)
+		prop(YES)
+	}
+	field(LOW,DBF_DOUBLE) {
+		prompt("Low Alarm Limit")
+		promptgroup("70 - Alarm")
+		pp(TRUE)
+		interest(1)
+		prop(YES)
+	}
+	field(HHSV,DBF_MENU) {
+		prompt("Hihi Severity")
+		promptgroup("70 - Alarm")
+		pp(TRUE)
+		interest(1)
+		prop(YES)
+		menu(menuAlarmSevr)
+	}
+	field(LLSV,DBF_MENU) {
+		prompt("Lolo Severity")
+		promptgroup("70 - Alarm")
+		pp(TRUE)
+		interest(1)
+		prop(YES)
+		menu(menuAlarmSevr)
+	}
+	field(HSV,DBF_MENU) {
+		prompt("High Severity")
+		promptgroup("70 - Alarm")
+		pp(TRUE)
+		interest(1)
+		prop(YES)
+		menu(menuAlarmSevr)
+	}
+	field(LSV,DBF_MENU) {
+		prompt("Low Severity")
+		promptgroup("70 - Alarm")
+		pp(TRUE)
+		interest(1)
+		prop(YES)
+		menu(menuAlarmSevr)
+	}
+	field(HYST,DBF_DOUBLE) {
+		prompt("Alarm Deadband")
+		promptgroup("70 - Alarm")
+		interest(1)
+	}
+	field(ADEL,DBF_DOUBLE) {
+		prompt("Archive Deadband")
+		promptgroup("80 - Display")
+		interest(1)
+	}
+	field(MDEL,DBF_DOUBLE) {
+		prompt("Monitor Deadband")
+		promptgroup("80 - Display")
+		interest(1)
+	}
+	field(LALM,DBF_DOUBLE) {
+		prompt("Last Value Alarmed")
+		special(SPC_NOMOD)
+		interest(3)
+	}
+	field(ALST,DBF_DOUBLE) {
+		prompt("Last Value Archived")
+		special(SPC_NOMOD)
+		interest(3)
+	}
+	field(MLST,DBF_DOUBLE) {
+		prompt("Last Val Monitored")
+		special(SPC_NOMOD)
+		interest(3)
+	}
+
+=head2 Record Support
+
+=head3 Record Support Routines
+
+=head2 C<init_record()>
+
+This routine initializes all output links that are defined. Then it initializes
+DOL if DOL is a constant or a PV_LINK. When initializing the output links
+and the DOL link, a non-zero value is returned if an error occurs.
+
+=head2 C<process()>
+
+See next section.
+
+=head2 C<get_units()>
+
+The routine copies the string specified in the EGU field to the location
+specified by a pointer which is passed to the routine.
+
+=head2 C<get_graphic_double()>
+
+If the referenced field is VAL, HIHI, HIGH, LOW, or LOLO, this routine sets
+the C<upper_disp_limit> member of the C<dbr_grDouble> structure to the
+HOPR and the C<lower_disp_limit> member to the LOPR. If the referenced
+field is not one of the above fields, then C<recGblGetControlDouble()>
+routine is called.
+
+=head2 C<get_control_double()>
+
+Same as the C<get_graphic_double()> routine except that it uses the
+C<dbr_ctrlDouble> structure.
+
+=head2 C<get_alarm_double()>
+
+This sets the members of the C<dbr_alDouble> structure to the specified
+alarm limits when the referenced field is VAL:
+
+=over
+
+upper_alarm_limit = HIHI
+
+upper_warning_limit = HIGH
+
+lower_warning_limit = LOW
+
+lower_alarm_limit = LOLO
+
+=back
+
+If the referenced field is not VAL, the C<recGblGetAlarmDouble()> routine
+is called.
+
+=head3 Record Processing
+
+=over
+
+=item 1.
+The C<process()> routine first checks that DOL is not a constant link and
+that OMSL is set to "closed_loop". If so, it retrieves a value through DOL
+and places it into VAL. If no errors occur, UDF is set to FALSE.
+
+=item 2.
+PACT is set TRUE, and the records timestamp is set.
+
+=item 3.
+A value is fetched from SELL and placed into SELN.
+
+=item 4.
+Alarms ranges are checked against the contents of the VAL field.
+
+=item 5.
+VAL is then sent through the OUT000-OUT2FF links by calling C<dbPutLink()> for
+each link, conditional on the setting of SELM and the value in SELN.
+
+=item 6.
+Value and archive monitors are posted on the VAL field if appropriate based on
+the settings of MDEL and ADEL respectively.
+
+=item 7.
+The data fanouts forward link FLNK is processed.
+
+=item 6.
+PACT is set FALSE, and the C<process()> routine returns.
+
+=back
+
+=cut
+}
