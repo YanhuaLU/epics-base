@@ -35,6 +35,7 @@ stdRecords += mbbiRecord
 stdRecords += mbbiDirectRecord
 stdRecords += mbboRecord
 stdRecords += mbboDirectRecord
+stdRecords += newfanoutRecord
 stdRecords += permissiveRecord
 stdRecords += printfRecord
 stdRecords += selRecord
